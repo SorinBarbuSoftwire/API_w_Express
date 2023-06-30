@@ -1,4 +1,4 @@
-import {Request, response, Response} from "express";
+import {Request, Response} from "express";
 const express = require("express");
 const axios = require("axios");
 import {AxiosResponse} from "axios";
@@ -8,11 +8,8 @@ const apiKey: string = "t2DwwSTymKQ5rd5M9h0hc6xdL9lPuchtdQx37pDV";
 const baseURL: string = "https://api.nasa.gov/mars-photos/api/v1/";
 const roversRoute: string = "rovers";
 const photosRoute: string = "photos";
-const sol: number = 0;
+const sol: number = 1000;
 
-
-
-// Setup
 const app = express();
 const port:number = 8000;
 
@@ -47,6 +44,15 @@ function roversController(req:Request, res:Response) : void {
 function photosController(req:Request, res:Response) : void {
     const roverName: string = req.params.rover_name;
     const cameraType: string = req.params.camera_type;
+
+    if (roverName !== "curiosity" &&
+        roverName !== "opportunity" &&
+        roverName !== "spirit") {
+
+        res.send("Wrong Rover!");
+        return;
+    }
+
     axios.get(baseURL + roversRoute + "/" + roverName + "/" + photosRoute, {
             params: {
                 sol: sol,
