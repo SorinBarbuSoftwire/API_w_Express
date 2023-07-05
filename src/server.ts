@@ -1,6 +1,7 @@
-import {Request, Response} from "express";
 const express = require("express");
 const axios = require("axios");
+const cors = require("cors");
+import {Request, Response} from "express";
 import {AxiosResponse} from "axios";
 import {AxiosError} from "axios";
 
@@ -8,7 +9,6 @@ const apiKey: string = "t2DwwSTymKQ5rd5M9h0hc6xdL9lPuchtdQx37pDV";
 const baseURL: string = "https://api.nasa.gov/mars-photos/api/v1/";
 const roversRoute: string = "rovers";
 const photosRoute: string = "photos";
-const sol: number = 1000;
 
 const app = express();
 const port:number = 8000;
@@ -16,6 +16,7 @@ const port:number = 8000;
 const routerTest = express.Router();
 const routerRovers = express.Router();
 
+app.use(cors());
 app.use(express.json());
 app.use('/', routerTest);
 app.use('/', routerRovers);
@@ -44,6 +45,7 @@ function roversController(req:Request, res:Response) : void {
 function photosController(req:Request, res:Response) : void {
     const roverName: string = req.params.rover_name;
     const cameraType: string = req.params.camera_type;
+    let sol: string = '';
 
     if (roverName !== "curiosity" &&
         roverName !== "opportunity" &&
@@ -53,6 +55,10 @@ function photosController(req:Request, res:Response) : void {
         return;
     }
 
+    if (req.query.sol != undefined) {
+        sol = req.query.sol as string;
+    }
+
     axios.get(baseURL + roversRoute + "/" + roverName + "/" + photosRoute, {
             params: {
                 sol: sol,
@@ -60,6 +66,6 @@ function photosController(req:Request, res:Response) : void {
                 api_key: apiKey
             }
     })
-        .then((response: AxiosResponse) => {res.send(response.data);})
+        .then((response: AxiosResponse) => {res.send(response.data as String);})
         .catch((error:AxiosError) => {console.log(error.response);});
 }
